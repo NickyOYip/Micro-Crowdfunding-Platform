@@ -3,26 +3,26 @@ pragma solidity ^0.8.19;
 
 import "./ICampaign.sol";
 import "./CampaignCore.sol";
+import "./CampaignMilestones.sol";
 
-/**
- * @title CampaignVoting
- * @dev Handles voting functionality for milestones
- */
+//Voting contract
 contract CampaignVoting {
-    // Reference to core contract
+    // connect to core contract
     CampaignCore public coreContract;
+    CampaignMilestones public milestonesContract;
     
     // Voting data structures
     struct VotingData {
         mapping(address => ICampaign.VoteOption) votingRecords;
+        address[] donor;
         uint256 votingDeadline;
         mapping(ICampaign.VoteOption => uint256) votingResult;
     }
     
-    // Voting storage by milestone ID
+    // Voting storage each milestone 
     mapping(uint256 => VotingData) public votingData;
     
-    // Events
+    // Event
     event startVoting(address indexed owner, address indexed campaign, uint256 milestoneId);
     event voteOnMilestone(address indexed user, address indexed campaign, uint256 milestoneId);
     event votingResult(address indexed campaign, uint256 milestoneId, uint256 approveVotes, uint256 rejectVotes, uint256 NotVoteYetVotes);
@@ -30,6 +30,13 @@ contract CampaignVoting {
     // Constructor
     constructor(address _coreContract) {
         coreContract = CampaignCore(_coreContract);
+    }
+    
+    // Add setter for milestones contract
+    function setMilestonesContract(address _milestonesContract) external {
+        require(address(milestonesContract) == address(0), "Already set");
+        require(msg.sender == address(coreContract), "Only core can set");
+        milestonesContract = CampaignMilestones(_milestonesContract);
     }
     
     // Modifiers
@@ -53,7 +60,7 @@ contract CampaignVoting {
     function requestVoting() external onlyOwner campaignActive {
         uint256 milestoneId = coreContract.onMilestone();
         
-        // Check if proof exists (delegated to milestone contract)
+        // Check if proof exists ( milestone contract)
         require(checkProofExists(milestoneId), "Need proof first");
         require(votingData[milestoneId].votingDeadline == 0, "Already started");
         
@@ -61,14 +68,14 @@ contract CampaignVoting {
         emit startVoting(coreContract.owner(), address(coreContract), milestoneId);
     }
     
-    // Check if proof exists for milestone
-    function checkProofExists(uint256 /* milestoneId */) internal pure returns (bool) {
-        // This would need to be implemented to check with the milestone contract
-        // For this example, we're using a placeholder
-        return true;
+    // Check if proof exists for milestone - now properly implemented
+    function checkProofExists(uint256 milestoneId) internal view returns (bool) {
+        require(address(milestonesContract) != address(0), "Milestones not set");
+        return milestonesContract.hasProof(milestoneId);
     }
     
-    // Vote on the current milestone
+    // Vote on the current milestone: donor can update their vote before voting deadline
+    // If donor has not voted yet, it will be counted as NotVoteYet
     function castVoteOnMilestone(bool approve) external onlyDonor campaignActive {
         uint256 milestoneId = coreContract.onMilestone();
         require(votingData[milestoneId].votingDeadline > 0, "Not started");
@@ -82,14 +89,18 @@ contract CampaignVoting {
         emit voteOnMilestone(msg.sender, address(coreContract), milestoneId);
     }
     
-    // Calculate voting results
-    function calculateVotingResult(uint256 milestoneId) external view returns (
+    // get vote 
+    function getVote(uint256 milestoneId) external view returns (
         uint256 approveVotes,
         uint256 rejectVotes, 
-        uint256 notVoteYetVotes,
-        bool isCompleted,
-        bool isFailed
+        uint256 notVoteYetVotes
     ) {
+        // Check if voting is completed and calculate results
+        uint voteRecode = votingData[milestoneId].votingResult[ICampaign.VoteOption.NotVoteYet] +
+            votingData[milestoneId].votingResult[ICampaign.VoteOption.Approve] +
+            votingData[milestoneId].votingResult[ICampaign.VoteOption.Reject];
+        require(msg.sender == address(milestonesContract), "Only milestones can call");
+        require(voteRecode == 0, "already calculated");
         VotingData storage voting = votingData[milestoneId];
         
         if (voting.votingDeadline == 0 || block.timestamp < voting.votingDeadline) {

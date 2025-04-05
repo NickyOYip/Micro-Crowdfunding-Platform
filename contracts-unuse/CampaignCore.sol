@@ -19,6 +19,7 @@ contract CampaignCore is ICampaign {
     Status public status;
     uint256 public tokenValue;// 1 token = 1000000000 wei
     mapping(address => uint256) public tokenPool;// how many tokens are given to each donor
+    address[] public donors;// list of donors
     uint256 public totalToken;// total how much are given out
     
     // Milestone tracking
@@ -86,7 +87,10 @@ contract CampaignCore is ICampaign {
         
         // Verify campaign still active
         require(status == Status.Active, "Not active");
-        
+        // add donor to list 
+        if(tokenPool[msg.sender] == 0) {
+            donors.push(msg.sender);
+        }
         // Process donation
         uint256 tokensToAdd = msg.value / tokenValue;
         tokenPool[msg.sender] += tokensToAdd;

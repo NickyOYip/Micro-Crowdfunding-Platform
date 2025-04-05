@@ -17,7 +17,7 @@ contract CampaignFacade {
         milestones = CampaignMilestones(_milestones);
     }
     
-    // from Core 
+    // from Core ----
     function donate() external payable {
         core.donate{value: msg.value}();
     }
@@ -41,7 +41,7 @@ contract CampaignFacade {
         core.requestRefund();
     }
     
-    // from Milestone 
+    // from Milestone -----
     function submitMilestoneProof(
         uint256 milestoneId,
         string memory title,
@@ -55,7 +55,7 @@ contract CampaignFacade {
         milestones.releaseFunds(milestoneId);
     }
     
-    // from Voting 
+    // from Voting ----
     function requestVoting() external {
         voting.requestVoting();
     }
@@ -63,6 +63,7 @@ contract CampaignFacade {
     function castVoteOnMilestone(bool approve) external {
         voting.castVoteOnMilestone(approve);
     }
+    
     
     // Combine info
     struct MilestoneFullInfo {

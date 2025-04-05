@@ -10,7 +10,7 @@ import "./CampaignVoting.sol";
  * @dev Handles milestone management, proofs, and fund releases
  */
 contract CampaignMilestones {
-    // References to other contracts
+    // coneect to other contracts
     CampaignCore public coreContract;
     CampaignVoting public votingContract;
     
@@ -29,10 +29,10 @@ contract CampaignMilestones {
         MilestoneInfo proofInfo;
     }
     
-    // Milestones by ID
+    // Milestones set
     mapping(uint256 => Milestone) public milestones;
     
-    // Events
+    // Event
     event milestoneProofSubmited(address indexed owner, address indexed campaign, uint256 milestoneId);
     event releaseFundsToOwner(address indexed owner, address indexed campaign, uint256 milestoneId, uint256 amount);
     
@@ -49,7 +49,7 @@ contract CampaignMilestones {
         coreContract = CampaignCore(_coreContract);
         votingContract = CampaignVoting(_votingContract);
         
-        // Initialize milestones
+        // Initialize milestone data
         uint256 totalReleaseRatio = 0;
         for (uint256 i = 0; i < milestoneCount; i++) {
             Milestone storage m = milestones[i];
@@ -63,7 +63,7 @@ contract CampaignMilestones {
             totalReleaseRatio += milestoneReleaseRatios[i];
         }
         
-        require(totalReleaseRatio == 100, "Bad ratios");
+        require(totalReleaseRatio == 100, "sum of ratios != 100");
     }
     
     // Modifiers
@@ -77,7 +77,7 @@ contract CampaignMilestones {
         _;
     }
     
-    // Submit proof for milestone completion
+    // Submit proof 
     function submitMilestoneProof(
         uint256 milestoneId,
         string memory _title,
@@ -93,21 +93,21 @@ contract CampaignMilestones {
         emit milestoneProofSubmited(coreContract.owner(), address(coreContract), milestoneId);
     }
     
-    // Check if proof exists for milestone
+    // Check if proof exists 
     function hasProof(uint256 milestoneId) public view returns (bool) {
-        return bytes(milestones[milestoneId].proofInfo.photoLink).length > 0;
+        return bytes(milestones[milestoneId].proofInfo.photoLink).length > 0 && 
+               bytes(milestones[milestoneId].proofInfo.title).length > 0 &&
+               bytes(milestones[milestoneId].proofInfo.descriptionLink).length > 0;
     }
     
-    // Calculate voting result for milestone
-    function calculateVotingResult(uint256 milestoneId) external {
+    // Calculate voting result 
+    function calculateVotingResult(uint256 milestoneId) public {
         // Get voting results from voting contract
         (
             uint256 approveVotes,
             uint256 rejectVotes,
             uint256 notVoteYetVotes,
-            bool isCompleted,
-            bool isFailed
-        ) = votingContract.calculateVotingResult(milestoneId);
+        ) = votingContract.getVote(milestoneId);
         
         // If no votes tallied yet, return
         if (approveVotes + rejectVotes + notVoteYetVotes == 0) return;
@@ -118,30 +118,29 @@ contract CampaignMilestones {
         } else if (isFailed) {
             milestones[milestoneId].status = ICampaign.Status.Failed;
             coreContract.setStatus(ICampaign.Status.Failed);
-            // Add explicit interface reference for any events being emitted
+            
         }
     }
     
-    // Release funds for completed milestone
+    // Release funds for completed milestone -> check -> update status -> transfer funds
     function releaseFunds(uint256 milestoneId) external onlyOwner {
         require(milestones[milestoneId].status == ICampaign.Status.Completed, "Not completed");
         require(milestoneId == coreContract.onMilestone(), "Wrong milestone");
         
         uint256 releaseRatio = milestones[milestoneId].releaseRatio;
-        uint256 amountToRelease = (coreContract.targetRaisedAmount() * releaseRatio) / 100;
+        uint256 amountToRelease = (coreContract.tokenValue() * coreContract.totalToken() ) * ( releaseRatio / 100);
         
         // Update token value for future milestones
-        if (milestoneId < coreContract.milestoneCount() - 1) {
-            // Calculate new token value with 20% reduction
-            uint256 newTokenValue = coreContract.tokenValue() * 4 / 5;
-            coreContract.updateTokenValue(newTokenValue);
+        if (milestoneId < coreContract.milestoneCount() - 1) { //check
+            uint256 newTokenValue = coreContract.tokenValue() - 1000000000 * (releaseRatio / 100);//1000000000 is default token value token value
+            coreContract.updateTokenValue(newTokenValue);// update status
         }
         
-        // Advance to next milestone
+        // move to next milestone
         coreContract.advanceToNextMilestone();
         
         // Transfer funds to owner
-        address payable ownerPayable = payable(coreContract.owner());
+        address payable ownerPayable = payable(coreContract.owner());//funds to owner
         ownerPayable.transfer(amountToRelease);
         
         emit releaseFundsToOwner(
