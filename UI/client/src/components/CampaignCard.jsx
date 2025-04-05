@@ -7,8 +7,8 @@ const CampaignCard = ({ campaign }) => {
         'Running In Progress': 'bg-white text-black',
         'Can Voting': 'bg-yellow-100 text-black',
         'Done in Funding': 'bg-green-100 text-black'
-        };
-        return `${styles[status] || 'bg-white text-black'} px-3 py-1 rounded-full text-sm`;
+        }; 
+        return `${styles[status] || 'bg-white text-black'} px-3 py-1 rounded-full `;
     };
   
     return (
@@ -21,7 +21,7 @@ const CampaignCard = ({ campaign }) => {
           />
           <h3 className="text-white font-bold text-xl mb-2">{campaign.title}</h3>
           <p className="text-gray-400 text-sm mb-4">{campaign.description}</p>
-          <div className={getStatusStyle(campaign.status)}>
+          <div style={{width:"fit-content",fontSize:"medium"}} className={getStatusStyle(campaign.status)}>
             {campaign.status}
           </div>
         </div>
