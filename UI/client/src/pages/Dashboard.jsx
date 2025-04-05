@@ -18,7 +18,7 @@ const Dashboard = () => {
     owner:"13276678136728",
     title: "Sample Campaign",
     description: "Sample description",
-    status: "Running In Progress",
+    status: "Voting in Progress",
     image: "https://via.placeholder.com/300"
   },
   {
@@ -26,7 +26,7 @@ const Dashboard = () => {
     owner:"13276678136728",
     title: "Sample Campaign",
     description: "Sample description",
-    status: "Running In Progress",
+    status: "Withdraw Available",
     image: "https://via.placeholder.com/300"
   }]);
 

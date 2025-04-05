@@ -44,17 +44,17 @@ const CampaignDetails = () => {
       deadline: '',
     });
   }
-
+  //this campaign should be get from id (owner:"metamask address")
   const [campaign] = useState({
     photoLink: "https://via.placeholder.com/600",
-    owner: "13276678136728",
+    owner: "13276678136728",//change this line to see the investers' view
     creatorName: "John Doe",
     description: "Sample campaign description",
     deadline: Date.now() + 86400000,
     raisedAmount: "1.5"
   });
 
-  //get current (metamask/web3) account address
+  //get current (metamask/web3) account{owner:" ", ...}
   const [account] = useState({
     owner: "13276678136728"
   });

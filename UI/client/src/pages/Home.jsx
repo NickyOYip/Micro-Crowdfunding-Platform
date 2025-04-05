@@ -2,6 +2,7 @@ import CampaignCard from '../components/CampaignCard';
 import { useState } from 'react';
 
 const Home = () => {
+  //get all campaigns created
   const [campaigns] = useState([{
     id: 1,
     title: "Sample Campaign",
