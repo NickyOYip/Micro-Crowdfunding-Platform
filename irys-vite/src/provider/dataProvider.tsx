@@ -22,8 +22,9 @@ const DataProvider = ({ children }) => {
 
     //network setting
     factoryAddress: '0x8C4d5D16a71Fc61eaE1289366467f19237d47660',
-
-
+    // Store for campaign data
+    campaigns: [], // Array of campaign addresses
+    campaignDetails: {}, // Address -> details mapping
     
     // Add other global state variables here
   });
