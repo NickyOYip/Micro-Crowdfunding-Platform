@@ -1,3 +1,19 @@
+// Example usage in a component
+//import useFactory from '../hooks/useFactory';
+//import useCampaign from '../hooks/useCampaign';
+
+//function SomeComponent() {
+//  const { getCampaigns, createCampaign } = useFactory();
+//  const campaignAddress = "0x..."; // A specific campaign address
+//  const { getCampaignInfo, donate } = useCampaign(campaignAddress);
+  
+  // Use these functions in your component...
+//}
+
+
+
+
+
 import { useContext, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { DataContext } from '../provider/dataProvider';
@@ -9,7 +25,7 @@ const campaignAbi = [
   "function getMilestoneInfo(uint256 milestoneId) view returns (tuple(uint256 releaseRatio, uint8 status, tuple(string title, string photoLink, string descriptionLink) proposalInfo, tuple(string title, string photoLink, string descriptionLink) proofInfo, uint256 votingDeadline, uint256 approveVotes, uint256 rejectVotes, uint256 notVoteYetVotes, uint8 userVote))",
   "function getAllMilestones() view returns (tuple(uint256 releaseRatio, uint8 status, tuple(string title, string photoLink, string descriptionLink) proposalInfo, tuple(string title, string photoLink, string descriptionLink) proofInfo, uint256 votingDeadline, uint256 approveVotes, uint256 rejectVotes, uint256 notVoteYetVotes, uint8 userVote)[])",
   
-  // Actions
+  // Action
   "function donate() payable",
   "function submitMilestoneProof(uint256 milestoneId, string _title, string _photoLink, string _descriptionLink)",
   "function requestVoting()",
@@ -19,7 +35,7 @@ const campaignAbi = [
   "function releaseFunds(uint256 milestoneId)",
   "function requestRefund()",
   
-  // Events
+  // Event
   "event userDonated(address indexed user, address indexed campaign)",
   "event refund(address indexed donor, address indexed campaign, uint256 milestoneId)",
   "event newStatus(address indexed campaign, uint8 status)",
@@ -32,30 +48,23 @@ const campaignAbi = [
   "event releaseFundsToOwner(address indexed owner, address indexed campaign, uint256 milestoneId, uint256 amount)"
 ];
 
-// Status enum mapping
+// Status mapping
 const statusMap = ["Active", "Completed", "Failed"];
 const voteOptionMap = ["Approve", "Reject", "NotVoteYet"];
 
-/**
- * Hook for interacting with a specific Campaign contract
- * @param {string} campaignAddress - Address of the campaign contract
- */
+//hook
 const useCampaign = (campaignAddress) => {
   const { data } = useContext(DataContext);
   const { ethProvider } = data;
 
-  /**
-   * Get the campaign contract instance
-   */
+  //read only contract instance
   const getCampaignContract = useCallback(() => {
     if (!ethProvider) throw new Error("Ethereum provider not connected");
     if (!campaignAddress) throw new Error("Campaign address not provided");
     return new ethers.Contract(campaignAddress, campaignAbi, ethProvider);
   }, [ethProvider, campaignAddress]);
 
-  /**
-   * Get a signer campaign contract (for transactions)
-   */
+  //read+write contract instance
   const getSignerContract = useCallback(async () => {
     if (!ethProvider) throw new Error("Ethereum provider not connected");
     if (!campaignAddress) throw new Error("Campaign address not provided");
@@ -63,9 +72,7 @@ const useCampaign = (campaignAddress) => {
     return new ethers.Contract(campaignAddress, campaignAbi, signer);
   }, [ethProvider, campaignAddress]);
 
-  /**
-   * Format campaign info from blockchain format
-   */
+ // formating campaign info 
   const formatCampaignInfo = useCallback((info) => {
     return {
       owner: info.owner,
@@ -81,9 +88,6 @@ const useCampaign = (campaignAddress) => {
     };
   }, []);
 
-  /**
-   * Format milestone info from blockchain format
-   */
   const formatMilestoneInfo = useCallback((info) => {
     return {
       releaseRatio: Number(info.releaseRatio),
@@ -106,9 +110,7 @@ const useCampaign = (campaignAddress) => {
     };
   }, []);
 
-  /**
-   * Get campaign info
-   */
+  // get campaign info
   const getCampaignInfo = useCallback(async () => {
     try {
       const contract = getCampaignContract();
@@ -120,9 +122,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getCampaignContract, formatCampaignInfo]);
 
-  /**
-   * Get info for a specific milestone
-   */
+  // get milestone info
   const getMilestoneInfo = useCallback(async (milestoneId) => {
     try {
       const contract = getCampaignContract();
@@ -134,9 +134,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getCampaignContract, formatMilestoneInfo]);
 
-  /**
-   * Get all milestones info
-   */
+  // get all milestones info
   const getAllMilestones = useCallback(async () => {
     try {
       const contract = getCampaignContract();
@@ -148,9 +146,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getCampaignContract, formatMilestoneInfo]);
 
-  /**
-   * Donate to the campaign
-   */
+  // donate to campaign
   const donate = useCallback(async (amount) => {
     try {
       const contract = await getSignerContract();
@@ -163,9 +159,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Submit proof for a milestone
-   */
+  // submit milestone proof
   const submitMilestoneProof = useCallback(async (milestoneId, title, photoLink, descriptionLink) => {
     try {
       const contract = await getSignerContract();
@@ -177,9 +171,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Request voting for the current milestone
-   */
+  // request voting for current milestone
   const requestVoting = useCallback(async () => {
     try {
       const contract = await getSignerContract();
@@ -191,9 +183,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Cast vote on current milestone
-   */
+// cast vote on milestone
   const castVote = useCallback(async (approve) => {
     try {
       const contract = await getSignerContract();
@@ -205,9 +195,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Get voting results for a milestone
-   */
+  // get voting result
   const getVotingResult = useCallback(async (milestoneId) => {
     try {
       const contract = await getSignerContract();
@@ -223,9 +211,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Get user's token amount for this campaign
-   */
+    // get user tokens info
   const getUserTokens = useCallback(async (userAddress) => {
     try {
       const contract = getCampaignContract();
@@ -240,9 +226,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getCampaignContract]);
 
-  /**
-   * Release funds for a completed milestone (owner only)
-   */
+    // release funds for a milestone if approved
   const releaseFunds = useCallback(async (milestoneId) => {
     try {
       const contract = await getSignerContract();
@@ -254,9 +238,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Request refund (if campaign failed)
-   */
+  // request refund for campian if rejected
   const requestRefund = useCallback(async () => {
     try {
       const contract = await getSignerContract();
@@ -268,9 +250,7 @@ const useCampaign = (campaignAddress) => {
     }
   }, [getSignerContract]);
 
-  /**
-   * Set up event listeners for campaign events
-   */
+
   const listenToEvents = useCallback((eventName, callback) => {
     try {
       const contract = getCampaignContract();

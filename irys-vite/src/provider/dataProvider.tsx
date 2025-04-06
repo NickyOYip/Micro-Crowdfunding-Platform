@@ -21,7 +21,7 @@ const DataProvider = ({ children }) => {
     
 
     //network setting
-    factoryAddress: '0x8C4d5D16a71Fc61eaE1289366467f19237d47660',
+    factoryAddress: '0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe', // Factory contract address on testnet
     // Store for campaign data
     campaigns: [], // Array of campaign addresses
     campaignDetails: {}, // Address -> details mapping

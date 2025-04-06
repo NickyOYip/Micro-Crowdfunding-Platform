@@ -1,3 +1,17 @@
+// Example usage in a component
+//import useFactory from '../hooks/useFactory';
+//import useCampaign from '../hooks/useCampaign';
+
+//function SomeComponent() {
+//  const { getCampaigns, createCampaign } = useFactory();
+//  const campaignAddress = "0x..."; // A specific campaign address
+//  const { getCampaignInfo, donate } = useCampaign(campaignAddress);
+  
+  // Use these functions in your component...
+//}
+
+
+
 import { useContext, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { DataContext } from '../provider/dataProvider';
@@ -9,24 +23,18 @@ const factoryAbi = [
   "event campaignCreated(address indexed owner, address indexed campaign)"
 ];
 
-/**
- * Hook for interacting with the CampaignFactory contract
- */
+
 const useFactory = () => {
   const { data } = useContext(DataContext);
-  const { ethProvider, factoryAddress } = data;
+  const { ethProvider, factoryAddress } = data;//<-- fatoryAddress is set in dataProvider
 
-  /**
-   * Get the factory contract instance
-   */
+
   const getFactoryContract = useCallback(() => {
     if (!ethProvider) throw new Error("Ethereum provider not connected");
     return new ethers.Contract(factoryAddress, factoryAbi, ethProvider);
   }, [ethProvider, factoryAddress]);
 
-  /**
-   * Get all campaigns created by the factory
-   */
+  //get all campaigns address
   const getCampaigns = useCallback(async () => {
     try {
       const contract = getFactoryContract();
@@ -38,9 +46,7 @@ const useFactory = () => {
     }
   }, [getFactoryContract]);
 
-  /**
-   * Create a new campaign
-   */
+    //create a new campaign
   const createCampaign = useCallback(async ({
     title,
     photoLink,
@@ -107,9 +113,7 @@ const useFactory = () => {
     }
   }, [ethProvider, factoryAddress]);
 
-  /**
-   * Listen for new campaign creation events
-   */
+// Listen to campaign creation 
   const listenToCampaignCreation = useCallback((callback) => {
     try {
       const contract = getFactoryContract();
