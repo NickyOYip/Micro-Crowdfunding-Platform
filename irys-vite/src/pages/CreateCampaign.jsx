@@ -422,8 +422,10 @@ const CreateCampaign = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block mb-2">Title *</label>
+            <label htmlFor="campaign-title" className="block mb-2">Title *</label>
             <input
+              id="campaign-title"
+              name="title"
               required
               className="w-full bg-gray-700 p-3 rounded-lg"
               style={{border:"solid #646cff"}}
@@ -435,8 +437,10 @@ const CreateCampaign = () => {
           </div>
 
           <div>
-            <label className="block mb-2">Description *</label>
+            <label htmlFor="campaign-description" className="block mb-2">Description *</label>
             <textarea
+              id="campaign-description"
+              name="description"
               required
               className="w-full bg-gray-700 p-3 rounded-lg h-32"
               style={{border:"solid #646cff"}}
@@ -448,8 +452,10 @@ const CreateCampaign = () => {
           </div>
 
           <div>
-            <label className="block mb-2">Target Amount (ETH) *</label>
+            <label htmlFor="campaign-target" className="block mb-2">Target Amount (ETH) *</label>
             <input
+              id="campaign-target"
+              name="targetAmount"
               type="number"
               step="0.001"
               min="0.001"
@@ -464,8 +470,10 @@ const CreateCampaign = () => {
           </div>
 
           <div>
-            <label className="block mb-2">End Date *</label>
+            <label htmlFor="campaign-deadline" className="block mb-2">End Date *</label>
             <input
+              id="campaign-deadline"
+              name="deadline"
               type="date"
               required
               className="w-full bg-gray-700 p-3 rounded-lg"
@@ -481,11 +489,12 @@ const CreateCampaign = () => {
             <label className="block mb-2">Campaign Image *</label>
             <div className="bg-gray-700 p-4 rounded-lg border-2 border-dashed border-gray-500">
               <input
+                id="imageUpload"
+                name="campaignImage"
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleFileChange(e)}
                 className="hidden"
-                id="imageUpload"
                 disabled={isUploading}
                 required
               />
@@ -536,8 +545,10 @@ const CreateCampaign = () => {
 
                 <div className="space-y-4 mt-3">
                   <div>
-                    <label className="block mb-1">Title *</label>
+                    <label htmlFor={`milestone-title-${index}`} className="block mb-1">Title *</label>
                     <input
+                      id={`milestone-title-${index}`}
+                      name={`milestone-title-${index}`}
                       required
                       className="w-full bg-gray-700 p-2 rounded-lg"
                       style={{border:"solid #646cff"}}
@@ -549,8 +560,10 @@ const CreateCampaign = () => {
                   </div>
 
                   <div>
-                    <label className="block mb-1">Description *</label>
+                    <label htmlFor={`milestone-description-${index}`} className="block mb-1">Description *</label>
                     <textarea
+                      id={`milestone-description-${index}`}
+                      name={`milestone-description-${index}`}
                       required
                       className="w-full bg-gray-700 p-2 rounded-lg h-20"
                       style={{border:"solid #646cff"}}
@@ -565,11 +578,12 @@ const CreateCampaign = () => {
                     <label className="block mb-1">Image</label>
                     <div className="bg-gray-700 p-3 rounded-lg border border-dashed border-gray-500">
                       <input
+                        id={`milestoneImage${index}`}
+                        name={`milestone-image-${index}`}
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleFileChange(e, index)}
                         className="hidden"
-                        id={`milestoneImage${index}`}
                         disabled={isUploading}
                       />
                       <label 
@@ -593,8 +607,10 @@ const CreateCampaign = () => {
                   </div>
 
                   <div>
-                    <label className="block mb-1">Release Ratio (%) *</label>
+                    <label htmlFor={`milestone-ratio-${index}`} className="block mb-1">Release Ratio (%) *</label>
                     <input
+                      id={`milestone-ratio-${index}`}
+                      name={`milestone-ratio-${index}`}
                       type="number"
                       min="1"
                       max="100"
@@ -667,6 +683,7 @@ const CreateCampaign = () => {
                 <div className="flex justify-between items-center">
                   <div className="font-semibold">Storage Funding Status</div>
                   <button
+                    type="button"
                     onClick={checkIrysBalance}
                     className="bg-gray-600 hover:bg-gray-500 text-white py-1 px-3 rounded text-sm"
                     disabled={isUploading || isFunding}
@@ -706,6 +723,7 @@ const CreateCampaign = () => {
               <div className="bg-yellow-800 text-yellow-100 p-4 mb-4 rounded-lg">
                 <p>Additional funding is needed for uploading files to Irys.</p>
                 <button
+                  type="button"
                   onClick={handleFundAccount}
                   className="mt-2 bg-yellow-700 hover:bg-yellow-600 text-white py-2 px-4 rounded"
                   disabled={isUploading || isFunding}
@@ -720,6 +738,8 @@ const CreateCampaign = () => {
           <div className="flex justify-between">
             <button
               type="button"
+              id="estimate-cost-btn"
+              name="estimate-cost"
               onClick={async () => {
                 setProgressStep('estimating');
                 const cost = await estimateUploadCost();
@@ -738,6 +758,8 @@ const CreateCampaign = () => {
             
             <button
               type="submit"
+              id="create-campaign-btn"
+              name="create-campaign"
               className="flex-1 ml-4 bg-[#646cff] text-white py-4 rounded-lg hover:bg-blue-700 text-lg disabled:opacity-50"
               disabled={isUploading || isFunding || !ethProvider || needsFunding}
             >

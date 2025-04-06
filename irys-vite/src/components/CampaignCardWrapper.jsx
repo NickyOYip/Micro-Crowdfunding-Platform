@@ -2,19 +2,24 @@ import { useState, useEffect } from 'react';
 import CampaignCard from './CampaignCard';
 import useCampaign from '../hooks/useCampaign';
 
-const CampaignCardWrapper = ({ address, filter }) => {
+const CampaignCardWrapper = ({ 
+  address, 
+  filter, 
+  userAddress = null,
+  isOwner = false,
+  isDonor = false
+}) => {
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Properly use the useCampaign hook at the top level of the component
-  const { getCampaignInfo } = useCampaign(address);
+  // Use the hook properly at the top level of a component
+  const { getCampaignInfo, getUserTokens } = useCampaign(address);
   
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
         const info = await getCampaignInfo();
-        console.log(`Campaign ${address} deadline:`, info.deadline);
         
         // Calculate progress percentage
         const progress = parseFloat(info.raisedAmount) / parseFloat(info.targetRaisedAmount) * 100;
@@ -22,19 +27,39 @@ const CampaignCardWrapper = ({ address, filter }) => {
         // Get remaining time
         const now = new Date();
         const deadlineDate = new Date(info.deadline);
-        console.log(`Now: ${now.toISOString()}, Deadline: ${deadlineDate.toISOString()}`);
         
         // Calculate days left
         const diffTime = deadlineDate - now;
         const timeLeft = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0;
+        
+        // If userAddress is provided but isOwner/isDonor is not explicitly set,
+        // detect ownership and donation status
+        let ownerStatus = isOwner;
+        let donorStatus = isDonor;
+        
+        if (userAddress && !isOwner) {
+          ownerStatus = info.owner.toLowerCase() === userAddress.toLowerCase();
+        }
+        
+        if (userAddress && !isDonor) {
+          try {
+            const tokenInfo = await getUserTokens(userAddress);
+            donorStatus = tokenInfo.amount > 0;
+          } catch (err) {
+            console.error(`Error checking donations for campaign ${address}:`, err);
+          }
+        }
         
         setCampaign({
           address,
           ...info,
           progress: isNaN(progress) ? 0 : Math.min(progress, 100),
           timeLeft: timeLeft,
-          deadlineFormatted: deadlineDate.toLocaleDateString()
+          deadlineFormatted: deadlineDate.toLocaleDateString(),
+          isOwner: ownerStatus,
+          isDonor: donorStatus
         });
+        
       } catch (err) {
         console.error(`Error fetching campaign ${address}:`, err);
         setError(err.message);
@@ -44,7 +69,12 @@ const CampaignCardWrapper = ({ address, filter }) => {
     };
     
     fetchCampaign();
-  }, [address, getCampaignInfo]);
+  }, [address, getCampaignInfo, getUserTokens, userAddress, isOwner, isDonor]);
+
+  // Handle filtering based on campaign status
+  if (filter && campaign && campaign.status.toLowerCase() !== filter.toLowerCase() && filter !== 'all') {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -65,11 +95,6 @@ const CampaignCardWrapper = ({ address, filter }) => {
         <p className="text-gray-500 text-sm mt-1">{error}</p>
       </div>
     );
-  }
-
-  // If we have campaign data and a filter is active, check if the campaign matches the filter
-  if (campaign && filter !== 'all' && campaign.status && campaign.status.toLowerCase() !== filter.toLowerCase()) {
-    return null; // Don't render this campaign if it doesn't match the filter
   }
   
   return campaign ? <CampaignCard campaign={campaign} /> : null;

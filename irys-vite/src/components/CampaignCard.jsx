@@ -31,9 +31,16 @@ const StatusBadge = ({ status }) => {
   );
 };
 
+// Utility function to truncate Ethereum addresses
+const truncateAddress = (address) => {
+  if (!address) return '';
+  return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+};
+
 const CampaignCard = ({ campaign }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
   
   // Load image from Irys
   useEffect(() => {
@@ -49,6 +56,17 @@ const CampaignCard = ({ campaign }) => {
       setLoading(false);
     }
   }, [campaign.photoLink]);
+
+  // Function to copy address to clipboard
+  const copyToClipboard = (e, text) => {
+    e.preventDefault(); // Stop the link navigation
+    e.stopPropagation(); // Prevent event bubbling
+    
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+    });
+  };
 
   return (
     <Link to={`/campaign/${campaign.address}`} className="block">
@@ -68,11 +86,48 @@ const CampaignCard = ({ campaign }) => {
           <div className="absolute top-2 right-2">
             <StatusBadge status={campaign.status} />
           </div>
+          
+          {/* Owner/Donor Badge */}
+          {(campaign.isOwner || campaign.isDonor) && (
+            <div className="absolute bottom-2 right-2">
+              {campaign.isOwner && (
+                <span className="bg-purple-600 text-purple-100 text-xs font-medium py-1 px-2 rounded-full mr-1">
+                  Owner
+                </span>
+              )}
+              {campaign.isDonor && (
+                <span className="bg-yellow-600 text-yellow-100 text-xs font-medium py-1 px-2 rounded-full">
+                  Backer
+                </span>
+              )}
+            </div>
+          )}
         </div>
         
         {/* Campaign Content */}
         <div className="p-4">
           <h3 className="text-white font-bold text-lg mb-1 truncate">{campaign.title}</h3>
+          
+          {/* Owner Address - with copy button */}
+          <div 
+            className="flex items-center text-xs text-gray-400 mb-3 bg-gray-700 rounded-full px-2 py-1 cursor-pointer hover:bg-gray-600 transition-colors"
+            onClick={(e) => copyToClipboard(e, campaign.owner)}
+            title="Click to copy address"
+          >
+            <span className="bg-gray-600 rounded-full h-5 w-5 flex items-center justify-center mr-2">👤</span>
+            <span className="font-mono">{truncateAddress(campaign.owner)}</span>
+            <span className="ml-auto mr-1">
+              {!copied ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </span>
+          </div>
           
           {/* Progress bar */}
           <div className="w-full h-2 bg-gray-700 rounded-full mt-2 mb-4">
@@ -103,7 +158,8 @@ const CampaignCard = ({ campaign }) => {
           
           {/* Milestone progress */}
           {campaign.milestoneCount > 0 && (
-            <div className="mt-4 text-sm text-gray-400">
+            <div className="mt-4 text-sm text-gray-400 flex justify-between">
+              <span>Progress</span>
               <span>Milestone {Number(campaign.onMilestone) + 1} of {campaign.milestoneCount}</span>
             </div>
           )}

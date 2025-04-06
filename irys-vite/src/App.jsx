@@ -1,47 +1,48 @@
-import React, { useContext, useEffect } from "react";
-import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
-import { WalletContext } from './provider/walletProvider';
+import React, { useContext } from "react";
+import { Route, Routes, Navigate } from 'react-router-dom';
+import { DataContext } from './provider/dataProvider';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import CreateCampaign from './pages/CreateCampaign';
-import CampaignDetails from './pages/CampaignDetails';
-import Voting from './pages/Voting';
+import CampaignDetail from './pages/CampaignDetail';
 import Sidebar from './components/Sidebar';
 
 const App = () => {
-  const { walletStatus } = useContext(WalletContext);
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Redirect to login if wallet is not connected and user is not already on login page
-  useEffect(() => {
-    const isConnected = walletStatus.startsWith('Connected:');
-    const isOnLoginPage = location.pathname === '/' || location.pathname === '/login';
-    
-    if (!isConnected && !isOnLoginPage) {
-      navigate('/', { replace: true });
-    }
-  }, [walletStatus, navigate, location]);
+  const { data } = useContext(DataContext);
+  const { ethProvider } = data;
 
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/*" element={
-        <div className="flex">
-          <Sidebar />
-          <div className="flex-1">
-            <Routes>
-              <Route path="/home" element={<Home />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/create" element={<CreateCampaign />} />
-              <Route path="/campaign/:id" element={<CampaignDetails />} />
-              <Route path="/vote/:id" element={<Voting />} />
-            </Routes>
-          </div>
-        </div>
-      } />
-    </Routes>
+    <div className="min-h-screen bg-gray-900">
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={
+          <>
+            <Sidebar />
+            <Home />
+          </>
+        } />
+        <Route path="/dashboard" element={
+          <>
+            <Sidebar />
+            <Dashboard />
+          </>
+        } />
+        <Route path="/create" element={
+          <>
+            <Sidebar />
+            <CreateCampaign />
+          </>
+        } />
+        <Route path="/campaign/:campaignAddress" element={
+          <>
+            <Sidebar />
+            <CampaignDetail />
+          </>
+        } />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
   );
 }
 
