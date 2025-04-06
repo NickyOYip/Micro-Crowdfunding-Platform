@@ -1,4 +1,4 @@
-import { useState, useContext, createContext } from "react";
+import { useState, useContext, createContext, useEffect } from "react";
 import { ethers } from "ethers";
 import { WebUploader } from "@irys/web-upload";
 import { WebEthereum } from "@irys/web-upload-ethereum";
@@ -11,10 +11,36 @@ function WalletProvider({children}) {
   const { data, updateData } = useContext(DataContext);
   const [walletStatus, setWalletStatus] = useState("Not connected");
   const [irysStatus, setIrysStatus] = useState("Not connected");
+  const [changeReason, setChangeReason] = useState("");
 
+  // Set up listeners for account and network changes
+  useEffect(() => {
+    if (typeof window.ethereum !== 'undefined') {
+      // When account changes
+      window.ethereum.on('accountsChanged', (accounts) => {
+        console.log("Account changed to:", accounts[0]);
+        setChangeReason("Account changed");
+        logout();
+      });
+
+      // When network changes
+      window.ethereum.on('chainChanged', (chainId) => {
+        console.log("Network changed to:", chainId);
+        setChangeReason("Network changed");
+        logout();
+      });
+
+      // Cleanup listeners when component unmounts
+      return () => {
+        window.ethereum.removeListener('accountsChanged', () => {});
+        window.ethereum.removeListener('chainChanged', () => {});
+      };
+    }
+  }, []);
 
   const connectWallet = async () => {
     console.log("start connect to ETH wallet");
+    setChangeReason(""); // Clear any previous change reasons
 
     if (typeof window.ethereum === 'undefined') {
       console.error("No Ethereum provider found. Please install MetaMask or another wallet.");
@@ -45,9 +71,21 @@ function WalletProvider({children}) {
     }
   };
 
+  const logout = () => {
+    setWalletStatus("Not connected");
+    setIrysStatus("Not connected");
+    updateData({ ethProvider: null, irysUploader: null });
+    console.log("Wallet disconnected");
+  };
 
   return (
-    <WalletContext.Provider value={{ walletStatus, irysStatus, connectWallet }}>
+    <WalletContext.Provider value={{ 
+      walletStatus, 
+      irysStatus, 
+      connectWallet, 
+      logout,
+      changeReason
+    }}>
       {children}
     </WalletContext.Provider>
   );

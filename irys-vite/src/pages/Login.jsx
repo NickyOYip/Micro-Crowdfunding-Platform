@@ -4,7 +4,7 @@ import { WalletContext } from '../provider/walletProvider';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { walletStatus, irysStatus, connectWallet } = useContext(WalletContext);
+  const { walletStatus, irysStatus, connectWallet, changeReason } = useContext(WalletContext);
   const [walletAddress, setWalletAddress] = useState('');
   const [networkName, setNetworkName] = useState('');
   const [isConnected, setIsConnected] = useState(false);
@@ -37,6 +37,13 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4">
       <h1 className="text-white text-4xl font-bold mb-8">Welcome To D-Micro Crowdfunding Platform</h1>
+      
+      {/* Show notification if user was redirected due to account or network change */}
+      {changeReason && (
+        <div className="mb-6 px-4 py-3 bg-yellow-700 text-yellow-100 rounded-md">
+          <p className="font-medium">⚠️ {changeReason} detected! Please reconnect your wallet.</p>
+        </div>
+      )}
       
       {!isConnected ? (
         <button 
