@@ -230,7 +230,7 @@ contract Campaign {
         require(bytes(milestones[onMilestone].proofInfo.photoLink).length > 0, "Proof must be submitted first");
         require(milestones[onMilestone].votingDeadline == 0, "Voting already started");
         
-        milestones[onMilestone].votingDeadline = block.timestamp + 7 days; // 1 week voting period
+        milestones[onMilestone].votingDeadline = block.timestamp + 5 minutes; // 5 min voting period
         
         emit startVoting(owner, address(this), onMilestone);
     }

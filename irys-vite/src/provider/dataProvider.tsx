@@ -1,9 +1,5 @@
 import { createContext, useState } from 'react';
 
-/**
- * @title DataContext
- * @notice Provides a context for the data store
- */
 export const DataContext = createContext();
 
 
@@ -22,7 +18,7 @@ const DataProvider = ({ children }) => {
     
 
     //network setting
-    factoryAddress: '0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe', // Factory contract address on testnet
+    factoryAddress: '0x193bC2D42d8245E1E5bffAe9E1Ec47Fa19935DF9', // Factory contract address on testnet
     // Store for campaign data
     campaigns: [], // Array of campaign addresses
     campaignDetails: {}, // Address -> details mapping
@@ -30,20 +26,13 @@ const DataProvider = ({ children }) => {
     // Add other global state variables here
   });
 
-  /**
-   * @notice Updates the global state
-   * @param {Object} newData - New data to update the context with.
-   * @dev This function is used to update global data like account, network, etc.
-   */
+
   const updateData = (newData) => {
     setData((prevData) => ({ ...prevData, ...newData }));
   };
 
   return (
-    /**
-     * @title DataContext.Provider
-     * @notice Provides the global state and update function to the children components
-     */
+
     <DataContext.Provider value={{ data, updateData }}>
       {children}
     </DataContext.Provider>

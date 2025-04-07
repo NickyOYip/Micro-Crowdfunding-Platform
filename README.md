@@ -86,6 +86,7 @@ npm install
 ## Smart Contract Deployment
 
 ### Testnet Deployment
+***Better to prepare 0.1 SepoliaETH for test all the function
 
 Deploy to Sepolia testnet:
 
@@ -95,14 +96,12 @@ npx hardhat run scripts/deploy.js --network sepolia
 ```
 
 Take note of the contract address output and update `factoryAddress:` in your frontend `irys-vite\src\provider\dataProvider.tsx` file.
-
+***'0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe'<-7Day voting time contract on testnet->
+***'0x193bC2D42d8245E1E5bffAe9E1Ec47Fa19935DF9'<-5min voting time contract on testnet->
 ```bash
 import { createContext, useState } from 'react';
 
-/**
- * @title DataContext
- * @notice Provides a context for the data store
- */
+
 export const DataContext = createContext();
 
 
@@ -121,7 +120,7 @@ const DataProvider = ({ children }) => {
     
 
     //network setting
-    factoryAddress: '0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe', // Factory contract address on testnet
+    factoryAddress: '0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe', // Factory contract address on testnet <--- place your contract addr****
     // Store for campaign data
     campaigns: [], // Array of campaign addresses
     campaignDetails: {}, // Address -> details mapping
@@ -129,20 +128,11 @@ const DataProvider = ({ children }) => {
     // Add other global state variables here
   });
 
-  /**
-   * @notice Updates the global state
-   * @param {Object} newData - New data to update the context with.
-   * @dev This function is used to update global data like account, network, etc.
-   */
   const updateData = (newData) => {
     setData((prevData) => ({ ...prevData, ...newData }));
   };
 
   return (
-    /**
-     * @title DataContext.Provider
-     * @notice Provides the global state and update function to the children components
-     */
     <DataContext.Provider value={{ data, updateData }}>
       {children}
     </DataContext.Provider>
