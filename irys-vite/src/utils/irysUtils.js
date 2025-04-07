@@ -165,3 +165,45 @@ export const fetchBatchIrysContent = async (txIds) => {
   
   return result;
 };
+
+/**
+ * Upload data to Irys
+ * @param {WebUploader} uploader - The Irys WebUploader instance
+ * @param {File} file - The file to upload
+ * @returns {Promise<Object>} - The upload receipt
+ */
+export const uploadFile = async (uploader, file) => {
+  try {
+    if (!uploader) throw new Error('Uploader not initialized');
+    if (!file) throw new Error('File is required');
+    
+    // Get the receipt
+    const receipt = await uploader.uploadFile(file);
+    console.log(`File uploaded to: ${receipt.id}`);
+    return receipt;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw error;
+  }
+};
+
+/**
+ * Upload text content to Irys
+ * @param {WebUploader} uploader - The Irys WebUploader instance
+ * @param {string} text - The text content to upload
+ * @returns {Promise<Object>} - The upload receipt
+ */
+export const uploadText = async (uploader, text) => {
+  try {
+    if (!uploader) throw new Error('Uploader not initialized');
+    if (!text) throw new Error('Text content is required');
+    
+    // Upload the text
+    const receipt = await uploader.upload(text);
+    console.log(`Text uploaded to: ${receipt.id}`);
+    return receipt;
+  } catch (error) {
+    console.error('Error uploading text:', error);
+    throw error;
+  }
+};
