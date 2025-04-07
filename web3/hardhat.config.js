@@ -10,9 +10,10 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
+        runs: 200 // Fewer runs:reducing deployment costs
+        // More runs: reducing execution costs
       },
-      viaIR: true, // Add this line to enable IR-based compilation
+      viaIR: true, 
     },
   },
   paths: {
