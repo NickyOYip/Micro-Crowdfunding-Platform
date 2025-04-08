@@ -94,15 +94,12 @@ cd web3
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-Take note of the contract address output and update `factoryAddress:` in your frontend `irys-vite\src\provider\dataProvider.tsx` file.
+Take note of the contract address output and update `factoryAddress:` in your frontend `irys-vite\src\provider\dataProvider.tsx` file. 
 
 ```bash
 import { createContext, useState } from 'react';
 
-/**
- * @title DataContext
- * @notice Provides a context for the data store
- */
+
 export const DataContext = createContext();
 
 
@@ -121,7 +118,7 @@ const DataProvider = ({ children }) => {
     
 
     //network setting
-    factoryAddress: '0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe', // Factory contract address on testnet
+    factoryAddress: '0xd7e62df6F0DE61f1a47D3b0004dF8Faf15d41Bfe', // Factory contract address on testnet '0xA70B3168a2Fe9403664B61D98e637c3F0de348a6' is a 5 mins voting ver ,defualt one is 7 days
     // Store for campaign data
     campaigns: [], // Array of campaign addresses
     campaignDetails: {}, // Address -> details mapping
@@ -129,20 +126,13 @@ const DataProvider = ({ children }) => {
     // Add other global state variables here
   });
 
-  /**
-   * @notice Updates the global state
-   * @param {Object} newData - New data to update the context with.
-   * @dev This function is used to update global data like account, network, etc.
-   */
+
   const updateData = (newData) => {
     setData((prevData) => ({ ...prevData, ...newData }));
   };
 
   return (
-    /**
-     * @title DataContext.Provider
-     * @notice Provides the global state and update function to the children components
-     */
+
     <DataContext.Provider value={{ data, updateData }}>
       {children}
     </DataContext.Provider>
