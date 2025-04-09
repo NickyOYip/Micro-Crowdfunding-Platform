@@ -2,7 +2,8 @@
 
 A decentralized milestone-based crowdfunding platform built with Ethereum smart contracts, React, and Irys (for decentralized storage).
 
-![Platform Screenshot](./screenshots/platform-screenshot.png)
+## DEMO
+- https://youtu.be/H2M7IpTJlM8
 
 ## Table of Contents
 
